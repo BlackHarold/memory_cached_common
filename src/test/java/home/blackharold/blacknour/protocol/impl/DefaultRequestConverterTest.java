@@ -21,6 +21,22 @@ public class DefaultRequestConverterTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
+    private byte[] requestClear = new byte[]{
+            16,     //version
+            0,      //command
+            0       //flag
+    };
+
+    private byte[] requestPut = new byte[]{
+            16,                         //version
+            1,                          //command
+            7,                          //flag that has data
+            3,                          //int length
+            49, 50, 51,                 //key bytes
+            0, 0, 0, 0, 0, 0, 0, 5,     //ttl
+            0, 0, 0, 3,                 //data length
+            1, 2, 3                     //data
+    };
 
     @Test
     public void getFlagsByteEmpty() {
@@ -56,11 +72,7 @@ public class DefaultRequestConverterTest {
 
     @Test
     public void readRequestWithoutData() throws IOException {
-        Request request = defaultRequestConverter.readRequest(new ByteArrayInputStream(new byte[]{
-                16,     //version
-                0,      //command
-                0       //flag
-        }));
+        Request request = defaultRequestConverter.readRequest(new ByteArrayInputStream(requestClear));
         assertEquals(Command.CLEAR, request.getCommand());
         assertFalse(request.hasKey());
         assertFalse(request.hasTtl());
@@ -69,16 +81,7 @@ public class DefaultRequestConverterTest {
 
     @Test
     public void readRequestWithData() throws IOException {
-        Request request = defaultRequestConverter.readRequest(new ByteArrayInputStream(new byte[]{
-                16,                         //version
-                1,                          //command
-                7,                          //flag that has data
-                3,                          //int length
-                49, 50, 51,                 //key bytes
-                0, 0, 0, 0, 0, 0, 0, 5,     //ttl
-                0, 0, 0, 3,                 //data length
-                1, 2, 3                     //data
-        }));
+        Request request = defaultRequestConverter.readRequest(new ByteArrayInputStream(requestPut));
         assertEquals(Command.PUT, request.getCommand());
         assertTrue(request.hasKey());
         assertEquals("123", request.getKey());
@@ -92,26 +95,13 @@ public class DefaultRequestConverterTest {
     public void writeRequestWithoutData() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         defaultRequestConverter.writeRequest(outputStream, new Request(Command.CLEAR));
-        assertArrayEquals(new byte[]{
-                16,     //version
-                0,      //command
-                0       //flag
-        }, outputStream.toByteArray());
+        assertArrayEquals(requestClear, outputStream.toByteArray());
     }
 
     @Test
     public void writeRequestWithData() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         defaultRequestConverter.writeRequest(outputStream, new Request(Command.PUT, "123", 5L, new byte[]{1, 2, 3}));
-        assertArrayEquals(new byte[]{
-                16,                         //version
-                1,                          //command
-                7,                          //flag that has data
-                3,                          //int length
-                49, 50, 51,                 //key bytes
-                0, 0, 0, 0, 0, 0, 0, 5,     //ttl
-                0, 0, 0, 3,                 //data length
-                1, 2, 3                     //data
-        }, outputStream.toByteArray());
+        assertArrayEquals(requestPut, outputStream.toByteArray());
     }
 }
