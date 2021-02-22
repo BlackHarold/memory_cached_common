@@ -11,18 +11,18 @@ public class DefaultObjectSerializer implements ObjectSerializer {
         if (o == null) {
             return null;
         }
-        if (o instanceof Serializable) {
+        if (!(o instanceof Serializable)) {
             throw new NourRuntimeException("Class " + o.getClass().getName() + " should implement java.io.Serializable interface");
         }
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-            objectOutputStream.writeObject(o);
-            objectOutputStream.flush();
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(byteArrayOutputStream);
+            out.writeObject(o);
+            out.flush();
+            return byteArrayOutputStream.toByteArray();
         } catch (IOException e) {
-            throw new NourRuntimeException("can't convert object to byte array: " + e.getMessage(), e);
+            throw new NourRuntimeException("Can't convert object to byte array: " + e.getMessage(), e);
         }
-        return byteArrayOutputStream.toByteArray();
     }
 
     @Override
@@ -30,10 +30,9 @@ public class DefaultObjectSerializer implements ObjectSerializer {
         if (array == null) {
             return null;
         }
-        ObjectInputStream objectInputStream = null;
         try {
-            objectInputStream = new ObjectInputStream(new ByteArrayInputStream(array));
-            return objectInputStream.readObject();
+            ObjectInputStream inputStream = new ObjectInputStream(new ByteArrayInputStream(array));
+            return inputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new NourRuntimeException("Can't get object from byte array: " + e.getMessage(), e);
         }

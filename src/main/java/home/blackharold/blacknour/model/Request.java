@@ -20,7 +20,7 @@ public class Request extends AbstractPackage {
     }
 
     //like PUT
-    public Request(Command command, String key, long ttl, byte[] data) {
+    public Request(Command command, String key, Long ttl, byte[] data) {
         super(data);
         this.command = command;
         this.key = key;

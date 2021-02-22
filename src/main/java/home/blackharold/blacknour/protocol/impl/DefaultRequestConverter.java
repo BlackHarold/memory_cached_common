@@ -3,13 +3,13 @@ package home.blackharold.blacknour.protocol.impl;
 import home.blackharold.blacknour.exception.NourRuntimeException;
 import home.blackharold.blacknour.model.Command;
 import home.blackharold.blacknour.model.Request;
-import home.blackharold.blacknour.protocol.RequestConvertor;
+import home.blackharold.blacknour.protocol.RequestConverter;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-public class DefaultRequestConverter extends AbstractPackageConverter implements RequestConvertor {
+public class DefaultRequestConverter extends AbstractPackageConverter implements RequestConverter {
 
     @Override
     public Request readRequest(InputStream inputStream) throws IOException {
